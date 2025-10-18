@@ -37,3 +37,6 @@ format:
   @echo "🎨 Formatting and linting..."
   @uv run ruff check . --fix
 
+# Run tests
+test:
+  @PYTHONPATH=. uv run pytest --cov=phinder_api tests/

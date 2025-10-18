@@ -5,6 +5,8 @@ from fastapi.responses import JSONResponse
 from fastapi.exceptions import RequestValidationError
 from fastapi import Request, status
 
+from contextlib import asynccontextmanager
+
 from phinder_api import vt_utils
 from phinder_api.vt_utils import track_analysis_updates
 from phinder_api.state import InMemoryStore
@@ -12,6 +14,17 @@ from phinder_api import utils
 from phinder_api.models.response import APIResponse
 
 app = FastAPI()
+
+
+@asynccontextmanager
+async def lifespan(app: FastAPI):
+    state = InMemoryStore()
+    asyncio.create_task(track_analysis_updates(state))
+
+    yield  # Control goes to the app
+
+
+app.router.lifespan_context = lifespan
 
 
 @app.exception_handler(HTTPException)
@@ -37,12 +50,6 @@ async def runtime_error_handler(request: Request, exc: RuntimeError):
             str(exc), status.HTTP_500_INTERNAL_SERVER_ERROR
         ).model_dump(),
     )
-
-
-@app.on_event("startup")
-async def startup_event():
-    state = InMemoryStore()
-    asyncio.create_task(track_analysis_updates(state))
 
 
 @app.get("/", summary="Root API status endpoint")
