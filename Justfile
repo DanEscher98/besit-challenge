@@ -7,7 +7,7 @@ PORT := env("PORT")
 # Run FastAPI using uv, respecting the PORT from .env
 run:
     @echo "🚀 Starting FastAPI on port {{PORT}}"
-    uv run uvicorn app.main:app --host 0.0.0.0 --port {{PORT}}
+    uv run uvicorn phinder_api.main:app --host 0.0.0.0 --port {{PORT}}
 
 # Build Docker image, injecting the PORT into build args
 docker-build:
@@ -31,3 +31,9 @@ kill-port:
     else \
         echo "ℹ️ No process is using port $PORT."; \
     fi
+
+# Format and Lint
+format:
+  @echo "🎨 Formatting and linting..."
+  @uv run ruff check . --fix
+

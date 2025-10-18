@@ -12,7 +12,7 @@ COPY pyproject.toml uv.lock* .python-version ./
 RUN uv sync --frozen --no-dev
 
 # Copy your application code
-COPY app ./app
+COPY phinder_api ./phinder_api
 COPY .env .env
 
 # Expose port from .env at runtime (optional, useful for docs)
@@ -20,4 +20,4 @@ ARG PORT
 ENV PORT=${PORT}
 
 # Start FastAPI using uvicorn, binding to PORT env
-CMD uv run uvicorn app.main:app --host 0.0.0.0 --port ${PORT}
+CMD uv run uvicorn phinder_api.main:app --host 0.0.0.0 --port ${PORT}
