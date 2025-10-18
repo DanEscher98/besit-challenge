@@ -1,0 +1,50 @@
+
+# ---- Python ----
+__pycache__/
+*.py[cod]
+*.pyo
+*.pyd
+*.so
+
+# ---- uv virtual environment ----
+.venv/
+.uv/
+
+# ---- Packaging / Build ----
+build/
+dist/
+*.egg-info/
+.eggs/
+
+# ---- Logs / Runtime ----
+*.log
+*.pid
+
+# ---- Coverage / Testing ----
+htmlcov/
+.coverage
+.coverage.*
+.cache/
+pytest_cache/
+.tox/
+
+# ---- Tools ----
+.mypy_cache/
+ruff_cache/
+
+# ---- IDE / Editor ----
+.vscode/
+.idea/
+
+# ---- FastAPI / Uvicorn ----
+*.db
+*.sqlite3
+
+# ---- Local Files ----
+.env
+.env.*
+.DS_Store
+
+# ---- Project-specific ----
+data/*
+!data/.gitkeep
