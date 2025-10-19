@@ -1,23 +1,21 @@
-from fastapi import FastAPI, UploadFile, File, HTTPException
-from datetime import datetime
 import asyncio
-from fastapi.responses import JSONResponse
-from fastapi.exceptions import RequestValidationError
-from fastapi import Request, status
-
 from contextlib import asynccontextmanager
+from datetime import datetime
 
-from phinder_api import vt_utils
-from phinder_api.vt_utils import track_analysis_updates
-from phinder_api.state import InMemoryStore
-from phinder_api import utils
+from fastapi import FastAPI, File, HTTPException, Request, UploadFile, status
+from fastapi.exceptions import RequestValidationError
+from fastapi.responses import JSONResponse
+
+from phinder_api import utils, vt_utils
 from phinder_api.models.response import APIResponse
+from phinder_api.state import InMemoryStore
+from phinder_api.vt_utils import track_analysis_updates
 
 app = FastAPI()
 
 
 @asynccontextmanager
-async def lifespan(app: FastAPI):
+async def lifespan(_: FastAPI):
     state = InMemoryStore()
     asyncio.create_task(track_analysis_updates(state))
 
@@ -28,7 +26,7 @@ app.router.lifespan_context = lifespan
 
 
 @app.exception_handler(HTTPException)
-async def http_error_handler(request: Request, exc: HTTPException):
+async def http_error_handler(_: Request, exc: HTTPException):
     return JSONResponse(
         status_code=exc.status_code,
         content=APIResponse.fail(exc.detail, exc.status_code).model_dump(),
@@ -36,14 +34,14 @@ async def http_error_handler(request: Request, exc: HTTPException):
 
 
 @app.exception_handler(RequestValidationError)
-async def validation_exception_handler(request: Request, exc: RequestValidationError):
+async def validation_exception_handler(_: Request, exc: RequestValidationError):
     return JSONResponse(
         status_code=422, content=APIResponse.fail("Validation error", 422).model_dump()
     )
 
 
 @app.exception_handler(RuntimeError)
-async def runtime_error_handler(request: Request, exc: RuntimeError):
+async def runtime_error_handler(_: Request, exc: RuntimeError):
     return JSONResponse(
         status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
         content=APIResponse.fail(
@@ -75,7 +73,7 @@ async def update(file: UploadFile = File(...)):
         return APIResponse.ok({"vt_id": cached.analysis_id, "cached": True})
 
     vt_id = await vt_utils.upload_file_to_virustotal(file)
-    size_str = utils.format_size(file.size if hasattr(file, "size") else 0)
+    size_str = utils.format_size(file.size if file.size else 0)
     state.add_file(sha256=sha256, size=size_str, vt_id=vt_id)
 
     return APIResponse.ok({"vt_id": vt_id, "cached": False})
